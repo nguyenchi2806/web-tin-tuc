@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {allowedURL,parseArticle,parseMenu,flatten} from '../scripts/crawler.mjs';
+import {audit} from '../scripts/audit.mjs';
+import {mergePosts,latest,escapeHTML} from '../docs/assets/store.js';
+const url='https://dantri.com.vn/the-gioi/bai-viet-20261018123456789.htm';
+const html=`<html><head><script type="application/ld+json">{"@type":"NewsArticle","datePublished":"2026-10-18T12:34:00+07:00","author":{"name":"Tác giả thử nghiệm"}}</script><meta property="og:image" content="https://example.com/image.jpg"></head><body><h1>Tiêu đề kiểm thử</h1><div class="singular-sapo">Mô tả kiểm thử</div><div class="breadcrumbs"><a>Thế giới</a></div><div class="singular-content"><p>${'Đây là nội dung giả lập chỉ dùng kiểm thử. '.repeat(5)}</p><script>alert(1)</script></div></body></html>`;
+test('Chặn URL ngoài nguồn và URL chứa thông tin đăng nhập',()=>{for(const s of ['http://dantri.com.vn/','https://example.com/','https://dantri.com.vn.evil.com/','https://a:b@dantri.com.vn/'])assert.throws(()=>allowedURL(s));});
+test('Trích nội dung, tác giả và ngày đăng thật từ HTML',()=>{const p=parseArticle(html,url);assert.equal(p.id,'dtri-20261018123456789');assert.equal(p.author.name,'Tác giả thử nghiệm');assert.deepEqual(p.category,['Thế giới']);assert.equal(p.publishedAt,'2026-10-18T05:34:00.000Z');assert.ok(!p.content.includes('alert'));});
+test('Không tự chế ngày đăng khi nguồn thiếu ngày',()=>assert.throws(()=>parseArticle(html.replace('2026-10-18T12:34:00+07:00',''),url)));
+test('Menu giữ cây cha con và không nhầm URL bài thành chuyên mục',()=>{const m=parseMenu('<nav><a href="/the-gioi.htm">Thế giới</a><a href="/the-gioi/quan-su.htm">Quân sự</a><a href="/the-gioi/bai-20261018123456789.htm">Bài viết</a></nav>');assert.equal(m.menu[1].children[0].title,'Quân sự');assert.equal(flatten(m.menu).length,3);});
+test('Audit không cho dữ liệu rỗng đạt',()=>assert.equal(audit({menu:[]},[]).passed,false));
+test('Audit kiểm tra đủ 10 bài riêng biệt trong từng chuyên mục',()=>{const m={menu:[{id:'world',title:'Thế giới',type:'category'}]};const p=parseArticle(html,url);const posts=Array.from({length:10},(_,i)=>({...p,id:String(i),url:url+'?n='+i,categoryIds:['world']}));assert.equal(audit(m,posts).passed,true);assert.equal(audit(m,posts.slice(0,9)).passed,false);});
+test('Gộp bài cùng URL không nhân đôi, giữ quan hệ chuyên mục',()=>{const a={id:'1',url:'u',categoryIds:['a']},b={...a,categoryIds:['b']};const result=mergePosts([a],[b]);assert.equal(result.length,1);assert.deepEqual(result[0].categoryIds,['a','b']);});
+test('Sắp xếp theo thời gian giảm dần và escape nội dung',()=>{assert.equal(latest([{id:1,publishedAt:'2026-01-01'},{id:2,publishedAt:'2026-02-01'}])[0].id,2);assert.equal(escapeHTML('<script>'),'&lt;script&gt;');});

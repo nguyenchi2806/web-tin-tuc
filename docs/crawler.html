@@ -1,0 +1,7 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Thu thập tin · Tin Việt</title><link rel="stylesheet" href="assets/style.css"></head><body>
+<header><a class="brand" href="index.html">TIN<span>VIỆT</span></a><a href="index.html">← Về trang tin</a></header>
+<main><p class="eyebrow">CÔNG CỤ THU THẬP DỮ LIỆU</p><h1>Thêm bài viết từ Dân trí</h1><p>Nhập URL một bài viết. Nội dung được chuẩn hóa thành JSON và lưu trên trình duyệt này.</p>
+<form id="crawl-form"><label for="url">URL bài viết</label><input id="url" type="url" required placeholder="https://dantri.com.vn/...-2026....htm"><button id="submit">Lấy bài và lưu</button></form>
+<p id="status" role="status"></p><section id="result"></section><h2>Dữ liệu đã lưu</h2><p>Xuất JSON để sao lưu bài đã crawl. Khi nhập, dữ liệu được kiểm tra và gộp theo ID/URL.</p>
+<button id="export">Xuất bài viết JSON</button><label class="file-label">Nhập JSON <input type="file" id="import" accept="application/json,.json"></label>
+<p><a href="index.html">Xem danh sách bài viết →</a></p></main><footer id="footer"></footer><script type="module" src="assets/crawler.js"></script></body></html>

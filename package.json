@@ -1,0 +1,14 @@
+{
+  "name": "bai-tap-web-tin-tuc",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "start": "node server.mjs",
+    "crawl": "node scripts/collect.mjs",
+    "audit": "node scripts/audit.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {"cheerio": "1.1.2"}
+}
